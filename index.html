@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Task Log</title>
+    <style>
+      body {
+        background: linear-gradient(135deg, #2e2e2e, #1a1a1a);
+        font-family: 'Pirata One', cursive;
+        color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .todo-container {
+        background: rgba(0, 0, 0, 0.8);
+        box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.7);
+        width: 450px;
+        padding: 20px;
+        border-radius: 15px;
+        border: 3px solid #d4af37;
+        text-align: center;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+        font-size: 2.5rem;
+        color: #d4af37;
+        text-transform: uppercase;
+      }
+
+      #input-box {
+        width: 70%;
+        padding: 10px;
+        font-size: 1rem;
+        border: 2px solid #d4af37;
+        border-radius: 5px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        outline: none;
+      }
+
+      #input-box::placeholder {
+        color: #f4d03f; 
+        font-style: italic;
+      }
+
+      #input-button {
+        font-size: 1rem;
+        padding: 10px 15px;
+        margin-left: 5px;
+        margin-top: 10px;
+        border: none;
+        border-radius: 5px;
+        background: #d4af37;
+        color: #000;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      #input-button:hover {
+        background: #f4d03f;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin-top: 20px;
+        text-align: left;
+      }
+
+      li {
+        background: rgba(0, 0, 0, 0.7);
+        border: 1px solid #d4af37;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: background 0.3s;
+      }
+
+      li:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      h2 {
+        color: #f4d03f;
+      }
+
+      .edit-btn,
+      .delete-btn {
+        background: none;
+        border: none;
+        color: #f4d03f;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: color 0.3s;
+      }
+
+      .edit-btn:hover {
+        color: #fff;
+      }
+
+      .delete-btn:hover {
+        color: #ff1744;
+      }
+
+      .completed {
+        text-decoration: line-through;
+        color: #777;
+      }
+
+      .counter-container {
+        margin-top: 20px;
+        font-size: 1rem;
+        color: #d4af37;
+      }
+
+      hr {
+        border: none;
+        border-top: 2px solid #d4af37;
+        margin: 20px 0;
+      }
+
+      .message {
+        margin-top: 15px;
+        font-size: 1rem;
+        color: #f4d03f;
+      }
+
+      @media (max-width: 480px) {
+        .todo-container {
+          width: 90%;
+        }
+
+        #input-box {
+          width: 60%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="todo-container">
+      <div id="header">
+        <h1>Task Log</h1>
+      </div>
+
+      <div id="todo-form">
+        <input
+          type="text"
+          class="input-item"
+          name="input_box"
+          id="input-box"
+          placeholder="Add yer task, matey..."
+        />
+        <button id="input-button" onclick="addTask()">Add to Log</button>
+      </div>
+
+      <h2>Tasks on Deck</h2>
+      <ul id="list-container"></ul>
+
+      <hr />
+
+      <div class="counter-container">
+        <div id="task-counters">
+          Tasks Finished: <span id="completed-counter">0</span> | Tasks Not Finished:
+          <span id="uncompleted-counter">0</span>
+        </div>
+      </div>
+
+      <div id="message" class="message"></div>
+    </div>
+
+    <script>
+      const inputBox = document.getElementById("input-box");
+      const listContainer = document.getElementById("list-container");
+      const completedCounter = document.getElementById("completed-counter");
+      const uncompletedCounter = document.getElementById("uncompleted-counter");
+      const messageBox = document.getElementById("message");
+
+      function showMessage(message, type = "info") {
+        messageBox.textContent = message;
+        messageBox.style.color = type === "error" ? "#ff1744" : "#f4d03f";
+        setTimeout(() => {
+          messageBox.textContent = "";
+        }, 3000);
+      }
+
+      function updateCounters() {
+        const completedTasks = document.querySelectorAll(".completed").length;
+        const uncompletedTasks = document.querySelectorAll("li:not(.completed)").length;
+
+        completedCounter.textContent = completedTasks;
+        uncompletedCounter.textContent = uncompletedTasks;
+      }
+
+      function addTask() {
+        const task = inputBox.value.trim();
+        if (!task) {
+          showMessage("Arrr! Write somethin' fer the log!", "error");
+          return;
+        }
+
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <label>
+            <input type="checkbox">
+            <span class="task-text">${task}</span>
+          </label>
+          <button class="edit-btn">Edit</button>
+          <button class="delete-btn">Delete</button>
+        `;
+
+        listContainer.appendChild(li);
+        inputBox.value = "";
+
+        const checkbox = li.querySelector("input");
+        const editBtn = li.querySelector(".edit-btn");
+        const taskSpan = li.querySelector(".task-text");
+        const deleteBtn = li.querySelector(".delete-btn");
+
+        checkbox.addEventListener("click", function () {
+          li.classList.toggle("completed", checkbox.checked);
+          updateCounters();
+        });
+
+        editBtn.addEventListener("click", function () {
+          taskSpan.contentEditable = true;
+          taskSpan.focus();
+          taskSpan.addEventListener("blur", function () {
+            taskSpan.contentEditable = false;
+            li.classList.remove("completed");
+            checkbox.checked = false;
+            updateCounters();
+          });
+        });
+
+        deleteBtn.addEventListener("click", function () {
+          li.remove();
+          updateCounters();
+          showMessage("Task removed from the log.");
+        });
+
+        updateCounters();
+        showMessage("New task added to the log.");
+      }
+
+      inputBox.addEventListener("keyup", function (event) {
+        if (event.key === "Enter") {
+          addTask();
+        }
+      });
+    </script>
+  </body>
+</html>
